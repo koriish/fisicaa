@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simulador de movimiento</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+  <header>
+    <h1>Simulador de movimiento 🐾</h1>
+    <p>Movimiento rectilíneo uniforme y acelerado</p>
+  </header>
+
+  <main>
+
+    <!-- datos que escribe el usuario -->
+    <section class="tarjeta">
+      <form id="formulario">
+
+        <label>
+          Posición inicial (m)
+          <input type="number" id="posicion" value="0" step="any" required>
+        </label>
+
+        <label>
+          Velocidad inicial (m/s)
+          <input type="number" id="velocidad" value="5" step="any" required>
+        </label>
+
+        <label>
+          Aceleración (m/s²)
+          <input type="number" id="aceleracion" value="2" step="any" required>
+        </label>
+
+        <label>
+          Tiempo (s)
+          <input type="number" id="tiempo" value="10" step="any" min="0.1" required>
+        </label>
+
+        <label>
+          Rapidez de la animación
+          <select id="rapidez">
+            <option value="0.5">Lenta (0.5x)</option>
+            <option value="1" selected>Normal (1x)</option>
+            <option value="2">Rápida (2x)</option>
+          </select>
+        </label>
+
+        <div class="botones">
+          <button type="submit">Simular</button>
+          <button type="button" id="reiniciar" class="secundario">Reiniciar</button>
+        </div>
+
+      </form>
+
+      <p id="mensaje"></p>
+    </section>
+
+    <!-- animacion del auto -->
+    <section class="tarjeta">
+      <canvas id="pista" width="900" height="230"></canvas>
+      <p id="reloj">t = 0.00 s</p>
+    </section>
+
+    <!-- resultados numericos (se llena con JavaScript) -->
+    <section class="tarjeta" id="resultados" hidden></section>
+
+    <!-- graficas -->
+    <section class="graficas">
+      <div class="tarjeta"><canvas id="graficaPosicion"></canvas></div>
+      <div class="tarjeta"><canvas id="graficaVelocidad"></canvas></div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>x = x₀ + v₀·t + ½·a·t² &nbsp;|&nbsp; v = v₀ + a·t</p>
+  </footer>
+
+  <!-- libreria para las graficas -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

@@ -1,0 +1,168 @@
+/* Colores inspirados en Nekopara: crema, rosita, cafe suave y un azul clarito */
+:root {
+  --crema: #fff6ee;
+  --blanco: #fffdfb;
+  --rosa: #f6a5b7;
+  --rosa-oscuro: #e0708c;
+  --rosa-claro: #fde4ea;
+  --cafe: #6b4a3a;
+  --azul: #9ed3e6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--crema);
+  color: var(--cafe);
+  font-family: "Quicksand", sans-serif;
+  line-height: 1.5;
+}
+
+header {
+  text-align: center;
+  padding: 36px 16px 12px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--rosa-oscuro);
+}
+
+header p {
+  margin: 4px 0 0;
+}
+
+main {
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 16px;
+  display: grid;
+  gap: 16px;
+}
+
+.tarjeta {
+  background: var(--blanco);
+  border: 2px solid var(--rosa);
+  border-radius: 18px;
+  padding: 18px;
+}
+
+/* formulario */
+form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+input,
+select {
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--cafe);
+  background: var(--crema);
+  border: 2px solid var(--rosa-claro);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--rosa);
+}
+
+.botones {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+button {
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background: var(--rosa-oscuro);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--rosa);
+}
+
+button.secundario {
+  background: var(--azul);
+  color: var(--cafe);
+}
+
+button.secundario:hover {
+  background: #b9e0ee;
+}
+
+#mensaje {
+  margin: 12px 0 0;
+  color: var(--rosa-oscuro);
+  font-weight: 600;
+}
+
+#mensaje:empty {
+  display: none;
+}
+
+/* pista y reloj */
+#pista {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px;
+}
+
+#reloj {
+  margin: 8px 0 0;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* resultados */
+#resultados {
+  background: var(--rosa-claro);
+}
+
+#resultados p {
+  margin: 4px 0;
+}
+
+/* graficas, dos columnas en pantalla grande y una en celular */
+.graficas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 700px) {
+  .graficas {
+    grid-template-columns: 1fr;
+  }
+}
+
+footer {
+  text-align: center;
+  padding: 16px 16px 32px;
+  font-size: 0.9rem;
+}
