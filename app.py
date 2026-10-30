@@ -1,4 +1,4 @@
-# Simulador del movimiento de un vehiculo (MRU y MRUA)
+# Simulador del movimiento de un vehiculo (MRU y MRUV)
 # Para correrlo:  python app.py   y luego abrir http://127.0.0.1:5000
 
 import math
@@ -58,8 +58,8 @@ def calcular():
         posiciones.append(x0 + v0 * t + 0.5 * a * t ** 2)
         velocidades.append(v0 + a * t)
 
-    # si no hay aceleracion es MRU, si hay es MRUA
-    tipo = "MRU" if a == 0 else "MRUA"
+    # si no hay aceleracion es MRU, si hay es MRUV
+    tipo = "MRU" if a == 0 else "MRUV"
 
     return jsonify({
         "tipo": tipo,

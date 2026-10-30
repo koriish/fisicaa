@@ -1,12 +1,16 @@
-# Simulador del movimiento de un vehículo 🐾
+# MovMotion: simulador del movimiento de un vehículo 🐾
 
-Proyecto de Física: **Movimiento Rectilíneo Uniforme (MRU) y Uniformemente Acelerado (MRUA)**.
+Proyecto de Física: **Movimiento Rectilíneo Uniforme (MRU) y Uniformemente Variado (MRUV)**.
 
 Escribes la posición inicial, la velocidad, la aceleración y el tiempo, y el programa:
 
 1. Calcula cómo se mueve el vehículo.
 2. Lo anima en una carretera (el auto tiene orejitas de gato, porque sí).
 3. Dibuja las gráficas de **posición vs tiempo** y **velocidad vs tiempo**.
+
+La pantalla se divide en dos: a la **izquierda** está la "calculadora", que tiene dos apartados: **Movimiento** (datos, botones y resultado) y **Convertir a m/s**
+(pasar velocidades de otras unidades a m/s). A la **derecha** está el visor, con tres pestañas para cambiar entre
+**Animación**, **Posición vs tiempo** y **Velocidad vs tiempo**. Además puede reproducir sonidos de menú (como los de *Doki Doki Literature Club*) si pones tus propios audios.
 
 ---
 
@@ -24,7 +28,7 @@ Cuando un vehículo se mueve en línea recta con aceleración constante:
 - `a` = aceleración (m/s²)
 - `t` = tiempo (segundos)
 
-Si `a = 0` es **MRU** (velocidad constante). Si `a ≠ 0` es **MRUA**.
+Si `a = 0` es **MRU** (velocidad constante). Si `a ≠ 0` es **MRUV**.
 Si la velocidad sale negativa, el vehículo va hacia atrás (el auto se voltea en la animación).
 
 ---
@@ -62,7 +66,9 @@ simulador/
 │   └── index.html     → el esqueleto de la página (HTML)
 └── static/
     ├── style.css      → los colores y el diseño (CSS)
-    └── script.js      → la animación y las gráficas (JavaScript)
+    ├── script.js      → la animación, las gráficas y las pestañas (JavaScript)
+    ├── sonidos.js     → reproduce hover y seleccionar si los pones (JavaScript)
+    └── sonidos/       → (opcional) aquí pones hover.ogg y seleccionar.ogg
 ```
 
 Cómo trabajan juntos: el navegador muestra `index.html`. Cuando le das **Simular**,
@@ -112,138 +118,91 @@ sirve solo para que las personas entiendan.
 | 57 | Guarda ese tiempo en la lista. |
 | 58 | Aplica `x = x₀ + v₀·t + ½·a·t²` y guarda el resultado (`**` significa "elevado a"). |
 | 59 | Aplica `v = v₀ + a·t` y guarda el resultado. |
-| 61-62 | Si la aceleración es 0, el tipo es `"MRU"`; si no, `"MRUA"`. |
+| 61-62 | Si la aceleración es 0, el tipo es `"MRU"`; si no, `"MRUV"`. |
 | 64-73 | Devuelve todo al navegador: el tipo, las tres listas, la posición final, la velocidad final y el desplazamiento (posición final menos la inicial). `[-1]` significa "el último elemento de la lista". |
 | 76-77 | Si ejecutas este archivo directamente, enciende el servidor. `debug=True` hace que se reinicie solo si cambias el código. |
 
 ### 4.3 `templates/index.html` (HTML)
 
-HTML es el esqueleto de la página: dice **qué cosas hay**, no cómo se ven.
-Las cosas entre `<` y `>` se llaman *etiquetas*; casi todas se abren (`<p>`) y se cierran (`</p>`).
+HTML es el esqueleto: dice **qué cosas hay**, no cómo se ven.
 
 | Parte | Qué hace |
 |---|---|
-| `<!DOCTYPE html>` | Avisa al navegador que esto es una página HTML moderna. |
-| `<html lang="es">` | Empieza la página y dice que está en español. |
-| `<head>` ... `</head>` | Información "de fondo" que no se ve en la página. |
-| `<meta charset="UTF-8">` | Para que se vean bien los acentos y la ñ. |
-| `<meta name="viewport" ...>` | Para que la página se acomode bien en celulares. |
-| `<title>` | El nombre que sale en la pestaña del navegador. |
-| `<link ... fonts.googleapis.com ...>` (2 líneas) | Descargan la tipografía **Quicksand** (redondita y minimalista) de Google Fonts. |
-| `<link rel="stylesheet" href="{{ url_for(...) }}">` | Conecta el archivo de estilos `style.css`. Las llaves `{{ }}` las resuelve Flask para encontrar el archivo. |
-| `<body>` | Aquí empieza todo lo que sí se ve. |
-| `<header>` con `<h1>` y `<p>` | El encabezado: el título grande y el subtítulo. |
-| `<main>` | El contenido principal. |
-| `<section class="tarjeta">` | Una "cajita" con borde rosa (la clase `tarjeta` está definida en el CSS). |
-| `<form id="formulario">` | El formulario. El `id` es un nombre para que JavaScript lo encuentre. |
-| `<label>` | Un campo con su texto. Hay uno por cada dato. |
-| `<input type="number" id="posicion" value="0" step="any" required>` | Una casilla para escribir un número. `value` es el valor inicial, `step="any"` permite decimales y `required` obliga a llenarla. Igual para velocidad, aceleración y tiempo (el tiempo además tiene `min="0.1"`). |
-| `<select id="rapidez">` con `<option>` | Un menú para elegir qué tan rápida va la animación (0.5x, 1x o 2x). `selected` marca la opción por defecto. |
-| `<div class="botones">` | Una caja para acomodar los dos botones. |
-| `<button type="submit">Simular</button>` | Botón que envía el formulario. |
-| `<button type="button" id="reiniciar" ...>` | Botón para limpiar todo. |
-| `<p id="mensaje">` | Espacio donde aparecen los mensajes de error. |
-| `<canvas id="pista" width="900" height="230">` | Un "lienzo" donde JavaScript dibuja la carretera y el auto. |
-| `<p id="reloj">` | Texto que muestra `t`, `x` y `v` en vivo. |
-| `<section ... id="resultados" hidden>` | Caja de resultados; está oculta (`hidden`) hasta que haya una simulación. |
-| `<section class="graficas">` con 2 `<canvas>` | Dos lienzos para las gráficas de posición y de velocidad. |
-| `<footer>` | Pie de página con las dos fórmulas. |
-| `<script src="...chart.js...">` | Carga **Chart.js**, una librería que dibuja gráficas. |
-| `<script src="{{ url_for(...) }}">` | Carga nuestro `script.js`. Va al final para que la página ya exista cuando corra. |
-
-Las líneas que empiezan con `<!--` son comentarios.
+| `<head>` | Título de la pestaña, tipografía **Quicksand** (Google Fonts) y conexión con `style.css`. |
+| `<header class="barra">` | La barra de arriba con el nombre "MovMotion" a la izquierda y "MRU y MRUV" a la derecha. |
+| `<div class="layout">` | Caja que se divide en **dos columnas**: izquierda y derecha. |
+| `<aside class="izquierda">` | La columna izquierda. Arriba tiene dos pastillas (`data-seccion`) para elegir el apartado: `#seccion-calculadora` o `#seccion-conversor` (solo se ve uno a la vez). |
+| `<form id="formulario">` | Las 4 casillas (posición, velocidad, aceleración, tiempo), las 3 pastillas de rapidez, el recuadro de errores (solo aparece si algo sale mal) y los botones **Simular/Graficar** y **Reiniciar**. |
+| `<div id="resultados">` | Aquí se escribe el resultado numérico. |
+| `<div id="seccion-conversor">` | El apartado del convertidor de velocidad a m/s: una casilla para el valor y un menú `<select>` para la unidad (km/h, mi/h, ft/s y cm/s). Cada `<option>` guarda en `value` cuántos m/s vale 1 de esa unidad. |
+| `<section class="derecha">` | La columna derecha. |
+| `<nav class="pestanas">` | Los **3 botones** para cambiar de vista. Cada uno tiene `data-vista` con el nombre de su vista. |
+| `<div class="visor">` | El recuadro grande blanco. Adentro hay tres `<div class="vista">`, y solo una se ve a la vez (las otras tienen `hidden`). |
+| `<canvas id="pista">` | El lienzo donde JavaScript dibuja la carretera y el auto. |
+| `<span class="dato-vivo">` (3) | Los números en vivo: `t`, `x` y `v`. |
+| `<canvas id="graficaPosicion">` y `graficaVelocidad` | Los lienzos de las gráficas. Mientras no haya simulación muestran "La gráfica aparecerá aquí". |
+| `<script>` (3) | Cargan Chart.js (gráficas), `sonidos.js` y `script.js`. El orden importa: `script.js` usa a los otros dos. |
 
 ### 4.4 `static/style.css` (CSS)
 
-CSS dice **cómo se ve** cada cosa: colores, tamaños, espacios.
+CSS dice **cómo se ve** cada cosa.
 
 | Parte | Qué hace |
 |---|---|
-| `:root { --crema: ...; }` | Define los colores una sola vez con nombres: crema, blanco, rosa, rosa-oscuro, rosa-claro, café y azul. Después los usamos como `var(--rosa)`. |
-| `* { box-sizing: border-box; }` | Hace que el tamaño de las cajas incluya su borde, para que no se salgan de la pantalla. |
-| `body { ... }` | Fondo crema, texto color café, tipografía Quicksand y espacio entre renglones. |
-| `header` | Centra el texto y le da espacio arriba y abajo. |
-| `header h1` | El título: sin margen, tamaño `2rem`, grosor 600 y color rosa oscuro. |
-| `header p` | El subtítulo, con un poco de margen arriba. |
-| `main` | Ancho máximo de 940 px, centrado (`margin: 0 auto`), con las cajas una debajo de otra y 16 px entre ellas (`display: grid; gap`). |
-| `.tarjeta` | Las cajitas: fondo casi blanco, borde rosa de 2 px, esquinas redondeadas y espacio interno. |
-| `form` | Acomoda los campos en columnas que se adaptan al ancho (`auto-fit, minmax`). |
-| `label` | Texto encima de la casilla, en negrita y un poco más chico. |
-| `input, select` | Las casillas: tipografía igual al resto, fondo crema, borde rosa clarito y esquinas redondeadas. |
-| `input:focus, select:focus` | Cuando haces clic en una casilla, quita el borde azul del navegador y lo pone rosa. |
-| `.botones` | Pone los botones lado a lado, alineados abajo. |
-| `button` | Botón rosa oscuro con letras blancas, sin borde, esquinas redondeadas y cursor de mano. |
-| `button:hover` | El botón se aclara cuando pasas el mouse por encima. |
-| `button.secundario` y su `:hover` | El botón "Reiniciar" es azul clarito con letras color café. |
-| `#mensaje` y `#mensaje:empty` | El mensaje de error va en rosa oscuro; si está vacío, se oculta para no dejar espacio. |
-| `#pista` | El lienzo ocupa todo el ancho de la tarjeta y se ajusta en proporción. |
-| `#reloj` | El texto del reloj, centrado y en negrita. |
-| `#resultados` y `#resultados p` | La caja de resultados con fondo rosa clarito y párrafos con poco espacio. |
-| `.graficas` | Dos gráficas lado a lado. |
-| `@media (max-width: 700px)` | Si la pantalla es angosta (celular), las gráficas se ponen una debajo de la otra. |
-| `footer` | Pie de página centrado y con letra un poco más chica. |
+| `:root { --rosa: ...; }` | Los colores con nombre, para usarlos como `var(--rosa)`. |
+| `.layout` | `display: grid` con `grid-template-columns: 400px 1fr`: la izquierda mide 400 px y la derecha ocupa todo lo demás. |
+| `.izquierda` | Con `overflow-y: auto` se desplaza sola si no cabe todo. |
+| `.fila` | Pone dos casillas lado a lado. |
+| `.chip` y `.chip.activo` | Las pastillas redondas; la activa se pinta de rosa claro. |
+| `.mensaje` y `.mensaje.error` | El recuadro de errores; `:empty` lo oculta cuando no tiene texto. |
+| `.selector-seccion` | Las dos pastillas de arriba a la izquierda. |
+| `[hidden]` | Regla que oculta cualquier elemento con el atributo `hidden`. |
+| `.conversor` y `.conv-resultado` | El estilo del convertidor y de su caja de resultado. |
+| `.derecha` | Fondo crema con puntitos (`radial-gradient`). |
+| `.pestana` y `.pestana.activa` | Los botones de arriba; el activo se rellena de rosa. |
+| `.visor` y `.vista` | El recuadro blanco y cada vista dentro (`position: absolute; inset: 0` hace que ocupen todo el espacio). |
+| `.vista[hidden]` | Oculta las vistas que no están seleccionadas. |
+| `@media (max-width: 900px)` | En celular las dos columnas se apilan una sobre otra. |
 
 ### 4.5 `static/script.js` (JavaScript)
 
-JavaScript hace que la página **haga cosas**. En JS, `//` inicia un comentario,
-`const` crea un valor que no cambia y `let` uno que sí puede cambiar.
-
-**Cosas de la página (inicio del archivo)**
-
-| Líneas | Qué hacen |
+| Parte | Qué hace |
 |---|---|
-| `const formulario = document.getElementById("formulario")` (y las siguientes) | Busca en la página los elementos por su `id` y los guarda en variables para poder usarlos: el formulario, el botón de reiniciar, el mensaje, el reloj y la caja de resultados. |
-| `const pista = ...` y `const ctx = pista.getContext("2d")` | Busca el lienzo de la carretera y pide su "pincel" (`ctx`), con el que dibujaremos. |
-| `const ROSA = ...` (4 líneas) | Los mismos colores del CSS, para dibujar el auto. |
-| `let datos = null` | Aquí guardaremos lo que responda `app.py`. Empieza vacío (`null`). |
-| `let idAnimacion = null` | Número que sirve para poder detener la animación. |
-| `let graficaPosicion` y `let graficaVelocidad` | Aquí guardaremos las dos gráficas. |
-| `Chart.defaults...` (2 líneas) | Le pone a las gráficas la misma tipografía y color de texto que a la página. |
+| Variables de arriba | Buscan los elementos de la página por su `id` y guardan el estado (`datos`, `rapidez`, las gráficas...). |
+| `irA(nombre)` | **Cambia de pestaña**: marca la pestaña activa, muestra su vista y oculta las demás. También cambia el texto del botón principal: **Graficar** en las pestañas de gráficas y **Simular** en la animación. Las gráficas llaman a `resize()` porque no pueden calcular su tamaño mientras están ocultas. |
+| Chips de rapidez | Al hacer clic en una pastilla se guarda 0.5, 1 o 2 en `rapidez`. |
+| `submit` del formulario | Manda los 4 números a `app.py` con `fetch`, y si todo sale bien: guarda la respuesta, muestra resultados, crea gráficas, y arranca la simulación (sin cambiar de pestaña). Si hay error, lo muestra y suena el sonido de error. |
+| `empezarAnimacion` | Ciclo con `requestAnimationFrame` (unas 60 veces por segundo) que calcula el tiempo `t` y llama a `actualizar`. Al terminar suena una campanita. |
+| `reiniciar` | Borra datos, resultados y gráficas y deja el auto quieto. |
+| `valoresEn(t)` y `mezclar` | Sacan `x` y `v` para cualquier `t` mezclando los dos puntos más cercanos que calculó Flask, para que el movimiento sea fluido. |
+| `actualizar(t)` | En cada cuadro escribe el reloj, dibuja la escena y mueve el puntito de las dos gráficas. |
+| `ajustarLienzo` | Hace que el lienzo tenga el tamaño real que ocupa en pantalla (incluyendo pantallas retina) y se redibuje si cambias el tamaño de la ventana (`ResizeObserver`). |
+| `dibujarEscena` | Pinta cielo, sol, nubes, carretera, bandera de inicio, marcas de metros y el auto. Calcula qué rango de metros cabe usando la posición mínima y máxima. |
+| `pasoBonito` | Elige saltos "redondos" (1, 2, 5, 10, 20, 50...) para la regla. |
+| `dibujarAuto` | Dibuja el auto con formas simples. Si `v` es negativa lo voltea (`scale(-1, 1)`). `k` lo agranda según el tamaño del visor. |
+| `mostrarResultados` | Escribe tipo de movimiento, posición final, velocidad final y desplazamiento. |
+| `irASeccion(nombre)` | Cambia entre los apartados de la izquierda (Movimiento / Convertir a m/s). |
+| Convertidor (`convertirAMs`, `actualizarConversion`) | Multiplica el valor escrito por el factor de la unidad elegida y muestra el resultado en m/s al instante. El botón "Usar como velocidad inicial" lo copia a la casilla de velocidad y te regresa al apartado Movimiento. |
+| `crearGrafica` | Crea una gráfica de línea con Chart.js y un puntito que se mueve junto con el auto. `maintainAspectRatio: false` hace que llene el visor. |
 
-**Enviar el formulario**
+### 4.6 `static/sonidos.js` (JavaScript)
 
-| Líneas | Qué hacen |
-|---|---|
-| `formulario.addEventListener("submit", async function (evento) {` | "Cuando se envíe el formulario, haz lo siguiente". `async` permite esperar respuestas del servidor. |
-| `evento.preventDefault()` | Evita que la página se recargue (que es lo que haría el navegador normalmente). |
-| `mensaje.textContent = ""` | Borra el mensaje de error anterior. |
-| `const envio = { ... }` | Lee el valor de las 4 casillas y los junta en un paquete. |
-| `const respuesta = await fetch("/calcular", {...})` | Envía el paquete a `app.py` y espera la respuesta. `POST` es el tipo de envío, y `JSON.stringify` convierte el paquete a texto para viajar. |
-| `const resultado = await respuesta.json()` | Convierte la respuesta de texto a datos que JavaScript puede usar. |
-| `if (!respuesta.ok) {...}` | Si hubo error, muestra el mensaje y se detiene (`return`). |
-| `datos = resultado` | Guarda la respuesta. |
-| `mostrarResultados(); prepararGraficas(); empezarAnimacion();` | Muestra los resultados, crea las gráficas y arranca la animación. |
-| `botonReiniciar.addEventListener("click", reiniciar)` | Cuando hagan clic en "Reiniciar", ejecuta la función `reiniciar`. |
-
-**Animación**
-
-| Función | Qué hace |
-|---|---|
-| `empezarAnimacion` | Detiene cualquier animación anterior, lee la rapidez elegida y anota la hora de inicio. Dentro tiene la función `cuadro`, que se ejecuta una y otra vez (unas 60 veces por segundo): calcula cuántos segundos "de simulación" han pasado (`Math.min` evita pasarse del tiempo total), llama a `actualizar(t)` y, si todavía no termina, pide el siguiente cuadro con `requestAnimationFrame`. |
-| `reiniciar` | Detiene la animación, borra los datos, el mensaje, los resultados y las gráficas, regresa el reloj a cero y dibuja el auto quieto. |
-| `valoresEn(t)` | Para cualquier tiempo `t`, busca entre qué dos puntos calculados cae y toma un valor intermedio, así el movimiento se ve fluido. `Math.floor` redondea hacia abajo. |
-| `mezclar(a, b, fraccion)` | Devuelve un valor entre `a` y `b` (con `fraccion = 0` da `a`, con `1` da `b`). |
-| `actualizar(t)` | Se llama en cada cuadro: obtiene `x` y `v`, escribe el reloj, dibuja la escena y mueve el puntito de cada gráfica a donde va el auto. `toFixed(2)` deja 2 decimales. |
-
-**Dibujar la carretera y el auto**
+Solo hay **dos sonidos**, como en el menú del juego: `hover` (al pasar el mouse) y `seleccionar` (al hacer clic).
+El programa **no trae ningún sonido**: solo suena lo que tú pongas en `static/sonidos/`.
+Si no hay archivos, no suena nada.
 
 | Parte | Qué hace |
 |---|---|
-| `dibujarEscena(x, v)` | Primero borra el lienzo (`clearRect`). Luego calcula el rango de metros que debe caber en pantalla usando la posición más chica y la más grande (`Math.min` y `Math.max`) y agrega un poco de espacio extra (`holgura`). |
-| `aPixeles(metros)` | Convierte metros a píxeles para saber en qué punto de la pantalla va el auto. |
-| Bloque de la carretera | Pinta un rectángulo café clarito (`fillRect`) y una línea blanca punteada (`setLineDash`) en medio. |
-| Bloque de las marcas | Calcula cada cuántos metros poner un número bajo la carretera y los escribe con `fillText`. |
-| `pasoBonito(rango)` | Escoge un salto "redondo" (1, 2, 5, 10, 20, 50...) para que los números de la regla sean fáciles de leer. |
-| `dibujarAuto(px, sueloY, v)` | Dibuja el auto con formas simples: orejitas (triángulos), cabina, ventana y carrocería (rectángulos redondeados), un faro amarillo y dos llantas (círculos con `arc`). `save`/`translate`/`restore` mueven el "origen" al lugar del auto, y si `v` es negativa, `scale(-1, 1)` lo voltea como espejo. |
+| `buscarArchivos` | Al cargar la página revisa si existen `hover` y `seleccionar` en `static/sonidos/` (`.ogg`, `.mp3` o `.wav`) y guarda los que encuentre. |
+| `tocar(nombre)` | Si el archivo existe, lo reproduce (usa una copia para que se puedan encimar varios); si no, no hace nada. |
+| Eventos al final | `pointerover` (mouse encima), `click` y `change` (elegir en un menú) conectan los sonidos a toda la página sin tocar cada botón. |
 
-**Resultados y gráficas**
+> Los navegadores no dejan sonar nada hasta que la persona hace clic o presiona una tecla,
+> así que el `hover` empieza a sonar después del primer clic.
 
-| Función | Qué hace |
-|---|---|
-| `mostrarResultados` | Muestra la caja y escribe en ella el tipo de movimiento, la posición final, la velocidad final y el desplazamiento. |
-| `prepararGraficas` | Si ya había gráficas, las destruye y crea las dos nuevas. |
-| `crearGrafica` | Junta los tiempos con los valores en puntos `{x, y}` (con `.map`) y crea una gráfica de línea con Chart.js. Tiene dos conjuntos de datos: la línea completa y un punto grande que se mueve con el auto. `animation: false` evita que la gráfica se anime sola y choque con nuestra animación. Los textos `title` ponen el nombre y los ejes. |
-| Última línea: `dibujarEscena(0, 0)` | Al abrir la página, dibuja la carretera con el auto en el cero. |
+**Cómo poner sonidos:** copia tus archivos a `static/sonidos/` con los nombres `hover.ogg` y
+`seleccionar.ogg` (el `select.ogg` de Doki Doki) y reinicia la página con `Ctrl + F5`.
+Los audios del juego no vienen incluidos por derechos de autor.
 
 ---
 
@@ -252,7 +211,7 @@ JavaScript hace que la página **haga cosas**. En JS, `//` inicia un comentario,
 | Posición | Velocidad | Aceleración | Tiempo | Qué pasa |
 |---|---|---|---|---|
 | 0 | 5 | 0 | 10 | MRU: va a velocidad constante, la gráfica de posición es una recta. |
-| 0 | 5 | 2 | 10 | MRUA: acelera, la posición se curva hacia arriba. |
+| 0 | 5 | 2 | 10 | MRUV: acelera, la posición se curva hacia arriba. |
 | 0 | 10 | -2 | 10 | Frena, se detiene a los 5 s y se regresa (la velocidad pasa a negativa). |
 | 20 | -3 | 0 | 8 | Parte de los 20 m y va hacia atrás. |
 
@@ -260,6 +219,7 @@ JavaScript hace que la página **haga cosas**. En JS, `//` inicia un comentario,
 
 ## 6. Ideas para mejorarlo
 
+- Agregar un botón para silenciar el sonido.
 - Agregar un botón de pausa.
 - Mostrar la distancia total recorrida (distinta del desplazamiento cuando el auto se regresa).
 - Cambiar los colores en `:root` de `style.css`.
