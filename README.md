@@ -1,4 +1,4 @@
-# MovMotion: simulador del movimiento de un vehículo 🐾
+# MovMotion: simulador del movimiento de un vehículo 
 
 Proyecto de Física: **Movimiento Rectilíneo Uniforme (MRU) y Uniformemente Variado (MRUV)**.
 
@@ -185,39 +185,7 @@ CSS dice **cómo se ve** cada cosa.
 | Convertidor (`convertirAMs`, `actualizarConversion`) | Multiplica el valor escrito por el factor de la unidad elegida y muestra el resultado en m/s al instante. El botón "Usar como velocidad inicial" lo copia a la casilla de velocidad y te regresa al apartado Movimiento. |
 | `crearGrafica` | Crea una gráfica de línea con Chart.js y un puntito que se mueve junto con el auto. `maintainAspectRatio: false` hace que llene el visor. |
 
-### 4.6 `static/sonidos.js` (JavaScript)
 
-Solo hay **dos sonidos**, como en el menú del juego: `hover` (al pasar el mouse) y `seleccionar` (al hacer clic).
-El programa **no trae ningún sonido**: solo suena lo que tú pongas en `static/sonidos/`.
-Si no hay archivos, no suena nada.
-
-| Parte | Qué hace |
-|---|---|
-| `buscarArchivos` | Al cargar la página revisa si existen `hover` y `seleccionar` en `static/sonidos/` (`.ogg`, `.mp3` o `.wav`) y guarda los que encuentre. |
-| `tocar(nombre)` | Si el archivo existe, lo reproduce (usa una copia para que se puedan encimar varios); si no, no hace nada. |
-| Eventos al final | `pointerover` (mouse encima), `click` y `change` (elegir en un menú) conectan los sonidos a toda la página sin tocar cada botón. |
-
-> Los navegadores no dejan sonar nada hasta que la persona hace clic o presiona una tecla,
-> así que el `hover` empieza a sonar después del primer clic.
-
-**Cómo poner sonidos:** copia tus archivos a `static/sonidos/` con los nombres `hover.ogg` y
-`seleccionar.ogg` (el `select.ogg` de Doki Doki) y reinicia la página con `Ctrl + F5`.
-Los audios del juego no vienen incluidos por derechos de autor.
-
----
-
-## 5. Cosas que puedes probar
-
-| Posición | Velocidad | Aceleración | Tiempo | Qué pasa |
-|---|---|---|---|---|
-| 0 | 5 | 0 | 10 | MRU: va a velocidad constante, la gráfica de posición es una recta. |
-| 0 | 5 | 2 | 10 | MRUV: acelera, la posición se curva hacia arriba. |
-| 0 | 10 | -2 | 10 | Frena, se detiene a los 5 s y se regresa (la velocidad pasa a negativa). |
-| 20 | -3 | 0 | 8 | Parte de los 20 m y va hacia atrás. |
-
----
-
-## 6. Ideas para mejorarlo
 
 - Agregar un botón para silenciar el sonido.
 - Agregar un botón de pausa.
