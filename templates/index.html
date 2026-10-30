@@ -3,88 +3,175 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Simulador de movimiento</title>
+  <title>MovMotion</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
-  <header>
-    <h1>Simulador de movimiento 🐾</h1>
-    <p>Movimiento rectilíneo uniforme y acelerado</p>
+  <!-- barra de arriba -->
+  <header class="barra">
+    <span class="logo">MovMotion</span>
+    <span class="subtitulo">MRU y MRUV</span>
   </header>
 
-  <main>
+  <div class="layout">
 
-    <!-- datos que escribe el usuario -->
-    <section class="tarjeta">
+    <!-- ================= IZQUIERDA: la "calculadora" ================= -->
+    <aside class="izquierda">
+
+      <!-- selector de apartado (como las pestañas de la derecha) -->
+      <div class="chips selector-seccion">
+        <button type="button" class="chip activo" data-seccion="calculadora">Movimiento</button>
+        <button type="button" class="chip" data-seccion="conversor">Convertir a m/s</button>
+      </div>
+
+      <!-- apartado 1: la calculadora del movimiento -->
+      <div id="seccion-calculadora">
+
+      <div class="titulo-seccion">
+        <h2>Datos</h2>
+        <span class="pista-texto">x(t), v(t)</span>
+      </div>
+
       <form id="formulario">
 
-        <label>
-          Posición inicial (m)
-          <input type="number" id="posicion" value="0" step="any" required>
-        </label>
+        <p class="etiqueta-grupo">Posición y velocidad</p>
+        <div class="fila">
+          <label>
+            Posición inicial (m)
+            <input type="number" id="posicion" value="0" step="any" required>
+          </label>
+          <label>
+            Velocidad inicial (m/s)
+            <input type="number" id="velocidad" value="5" step="any" required>
+          </label>
+        </div>
 
-        <label>
-          Velocidad inicial (m/s)
-          <input type="number" id="velocidad" value="5" step="any" required>
-        </label>
+        <p class="etiqueta-grupo">Aceleración y tiempo</p>
+        <div class="fila">
+          <label>
+            Aceleración (m/s²)
+            <input type="number" id="aceleracion" value="2" step="any" required>
+          </label>
+          <label>
+            Tiempo (s)
+            <input type="number" id="tiempo" value="10" step="any" min="0.1" required>
+          </label>
+        </div>
 
-        <label>
-          Aceleración (m/s²)
-          <input type="number" id="aceleracion" value="2" step="any" required>
-        </label>
+        <p class="etiqueta-grupo">Rapidez de la animación</p>
+        <div class="chips" id="chipsRapidez">
+          <button type="button" class="chip" data-rapidez="0.5">Lenta 0.5x</button>
+          <button type="button" class="chip activo" data-rapidez="1">Normal 1x</button>
+          <button type="button" class="chip" data-rapidez="2">Rápida 2x</button>
+        </div>
 
-        <label>
-          Tiempo (s)
-          <input type="number" id="tiempo" value="10" step="any" min="0.1" required>
-        </label>
-
-        <label>
-          Rapidez de la animación
-          <select id="rapidez">
-            <option value="0.5">Lenta (0.5x)</option>
-            <option value="1" selected>Normal (1x)</option>
-            <option value="2">Rápida (2x)</option>
-          </select>
-        </label>
+        <p id="mensaje" class="mensaje"></p>
 
         <div class="botones">
-          <button type="submit">Simular</button>
+          <button type="submit" id="botonPrincipal" class="principal">Simular</button>
           <button type="button" id="reiniciar" class="secundario">Reiniciar</button>
         </div>
 
       </form>
 
-      <p id="mensaje"></p>
+      <div class="titulo-seccion">
+        <h2>Resultado</h2>
+      </div>
+
+      <div id="resultados" class="caja-resultado vacio">El resultado aparecerá aquí</div>
+
+      </div>
+
+      <!-- apartado 2: convertidor de velocidad a m/s -->
+      <div id="seccion-conversor" hidden>
+
+        <div class="titulo-seccion">
+          <h2>Convertir a m/s</h2>
+          <span class="pista-texto">velocidad</span>
+        </div>
+
+        <div class="conversor">
+          <div class="fila">
+            <label>
+              Valor
+              <input type="number" id="convValor" value="36" step="any">
+            </label>
+            <label>
+              Unidad
+              <select id="convUnidad">
+                <option value="0.2777777778">km/h</option>
+                <option value="0.44704">mi/h (mph)</option>
+                <option value="0.3048">ft/s</option>
+                <option value="0.01">cm/s</option>
+              </select>
+            </label>
+          </div>
+
+          <p class="conv-resultado" id="convResultado">= 10 m/s</p>
+          <button type="button" id="convUsar" class="principal">Usar como velocidad inicial</button>
+
+          <p class="etiqueta-grupo">Equivalencias</p>
+          <ul class="equivalencias">
+            <li>1 km/h = 0.2778 m/s</li>
+            <li>1 mi/h = 0.4470 m/s</li>
+            <li>1 ft/s = 0.3048 m/s</li>
+            <li>1 cm/s = 0.01 m/s</li>
+          </ul>
+        </div>
+
+      </div>
+
+    </aside>
+
+    <!-- ================= DERECHA: pestañas + visor ================= -->
+    <section class="derecha">
+
+      <nav class="pestanas" role="tablist">
+        <button type="button" class="pestana activa" role="tab" data-vista="animacion" aria-selected="true">Animación</button>
+        <button type="button" class="pestana" role="tab" data-vista="posicion" aria-selected="false">Posición vs tiempo</button>
+        <button type="button" class="pestana" role="tab" data-vista="velocidad" aria-selected="false">Velocidad vs tiempo</button>
+      </nav>
+
+      <div class="visor">
+
+        <!-- animacion del auto -->
+        <div class="vista" id="vista-animacion">
+          <div class="lienzo"><canvas id="pista"></canvas></div>
+          <div class="barra-reloj">
+            <span class="dato-vivo" id="relojT">t = 0.00 s</span>
+            <span class="dato-vivo" id="relojX">x = 0.00 m</span>
+            <span class="dato-vivo" id="relojV">v = 0.00 m/s</span>
+            <button type="button" id="repetir" class="mini" disabled>Repetir</button>
+          </div>
+        </div>
+
+        <!-- grafica de posicion -->
+        <div class="vista" id="vista-posicion" hidden>
+          <div class="lienzo"><canvas id="graficaPosicion"></canvas></div>
+          <p class="vacio-grafica">La gráfica aparecerá aquí</p>
+        </div>
+
+        <!-- grafica de velocidad -->
+        <div class="vista" id="vista-velocidad" hidden>
+          <div class="lienzo"><canvas id="graficaVelocidad"></canvas></div>
+          <p class="vacio-grafica">La gráfica aparecerá aquí</p>
+        </div>
+
+      </div>
+
+      <p class="formulas">x = x₀ + v₀·t + ½·a·t² &nbsp;|&nbsp; v = v₀ + a·t</p>
     </section>
 
-    <!-- animacion del auto -->
-    <section class="tarjeta">
-      <canvas id="pista" width="900" height="230"></canvas>
-      <p id="reloj">t = 0.00 s</p>
-    </section>
-
-    <!-- resultados numericos (se llena con JavaScript) -->
-    <section class="tarjeta" id="resultados" hidden></section>
-
-    <!-- graficas -->
-    <section class="graficas">
-      <div class="tarjeta"><canvas id="graficaPosicion"></canvas></div>
-      <div class="tarjeta"><canvas id="graficaVelocidad"></canvas></div>
-    </section>
-
-  </main>
-
-  <footer>
-    <p>x = x₀ + v₀·t + ½·a·t² &nbsp;|&nbsp; v = v₀ + a·t</p>
-  </footer>
+  </div>
 
   <!-- libreria para las graficas -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="{{ url_for('static', filename='sonidos.js') }}"></script>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
